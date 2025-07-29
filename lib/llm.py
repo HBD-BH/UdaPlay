@@ -17,14 +17,16 @@ class LLM:
         model: str = "gpt-4o-mini",
         temperature: float = 0.0,
         tools: Optional[List[Tool]] = None,
-        api_key: Optional[str] = None
+        api_key: Optional[str] = None,
+        base_url: Optional[str] = "https://openai.vocareum.com/v1"
     ):
         self.model = model
         self.temperature = temperature
-        self.client = OpenAI(api_key=api_key) if api_key else OpenAI()
+        self.client = OpenAI(api_key=api_key, base_url=base_url)
         self.tools: Dict[str, Tool] = {
             tool.name: tool for tool in (tools or [])
         }
+        self.base_url = base_url
 
     def register_tool(self, tool: Tool):
         self.tools[tool.name] = tool
@@ -64,7 +66,7 @@ class LLM:
             response = self.client.chat.completions.create(**payload)
         choice = response.choices[0]
         message = choice.message
-
+        
         token_usage = None
         if response.usage:
             token_usage = TokenUsage(
@@ -78,3 +80,4 @@ class LLM:
             tool_calls=message.tool_calls,
             token_usage=token_usage
         )
+
