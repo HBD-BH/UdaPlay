@@ -19,20 +19,27 @@ class Agent:
     def __init__(self, 
                  model_name: str,
                  instructions: str, 
+                 api_key: str,
+                 base_url: str,
                  tools: List[Tool] = None,
-                 temperature: float = 0.7):
+                 temperature: float = 0.7,
+                 ):
         """
         Initialize an Agent
         
         Args:
             model_name: Name/identifier of the LLM model to use
             instructions: System instructions for the agent
+            api_key: the API key to use
+            base_url: the base URL for the LLM
             tools: Optional list of tools available to the agent
             temperature: Temperature parameter for LLM (default: 0.7)
         """
-        self.instructions = instructions
-        self.tools = tools if tools else []
         self.model_name = model_name
+        self.instructions = instructions
+        self.api_key = api_key
+        self.base_url = base_url
+        self.tools = tools if tools else []
         self.temperature = temperature
         
         # Initialize memory and state machine
@@ -61,8 +68,11 @@ class Agent:
         llm = LLM(
             model=self.model_name,
             temperature=self.temperature,
-            tools=self.tools
+            tools=self.tools,
+            api_key=self.api_key,
+            base_url=self.base_url
         )
+
 
         response = llm.invoke(state["messages"])
         tool_calls = response.tool_calls if response.tool_calls else None
